@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>직원 정보</title>
+    <style>
+        body { font-family: sans-serif; max-width: 520px; margin: 30px auto; padding: 0 16px; }
+        .field { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 4px; font-weight: bold; }
+        input[type=text], input[type=number], input[type=date] { width: 100%; padding: 8px; box-sizing: border-box; }
+        .error { color: #b91c1c; font-size: 13px; margin-top: 4px; }
+        .btn { padding: 8px 14px; border: 1px solid #888; background: #fff; border-radius: 4px;
+               cursor: pointer; text-decoration: none; color: #222; font-size: 14px; }
+        .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+        #preview { width: 120px; height: 120px; object-fit: cover; border-radius: 8px;
+                   display: block; margin-bottom: 8px; border: 1px solid #ddd; }
+        .check { font-weight: normal; margin-top: 6px; }
+    </style>
+</head>
+<body>
+<h1 th:text="${employeeId == null} ? '직원 등록' : '직원 수정'">직원 등록</h1>
+
+<!-- 파일 업로드가 있으므로 enctype="multipart/form-data" 필수 -->
+<form th:action="${employeeId == null} ? @{/employees} : @{/employees/{id}(id=${employeeId})}"
+      th:object="${employeeForm}" method="post" enctype="multipart/form-data">
+
+    <div class="field">
+        <label for="photo">사진</label>
+        <img id="preview" alt="사진 미리보기"
+             th:src="${currentPhoto != null} ? @{/photos/{f}(f=${currentPhoto})} : null"
+             th:style="${currentPhoto == null} ? 'display:none' : null">
+        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/gif,image/webp">
+        <label class="check" th:if="${currentPhoto != null}">
+            <input type="checkbox" name="deletePhoto" value="true"> 현재 사진 삭제
+        </label>
+        <div class="error" th:if="${#fields.hasErrors('photo')}" th:errors="*{photo}"></div>
+    </div>
+
+    <div class="field">
+        <label for="name">이름</label>
+        <input type="text" id="name" th:field="*{name}">
+        <div class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+    </div>
+    <div class="field">
+        <label for="department">부서</label>
+        <input type="text" id="department" th:field="*{department}">
+        <div class="error" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+    </div>
+    <div class="field">
+        <label for="position">직급</label>
+        <input type="text" id="position" th:field="*{position}">
+        <div class="error" th:if="${#fields.hasErrors('position')}" th:errors="*{position}"></div>
+    </div>
+    <div class="field">
+        <label for="email">이메일</label>
+        <input type="text" id="email" th:field="*{email}">
+        <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    </div>
+    <div class="field">
+        <label for="salary">급여(원)</label>
+        <input type="number" id="salary" th:field="*{salary}">
+        <div class="error" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></div>
+    </div>
+    <div class="field">
+        <label for="hireDate">입사일</label>
+        <input type="date" id="hireDate" th:field="*{hireDate}">
+        <div class="error" th:if="${#fields.hasErrors('hireDate')}" th:errors="*{hireDate}"></div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">저장</button>
+    <a th:href="@{/employees}" class="btn">취소</a>
+</form>
+
+<script>
+    // 파일을 고르면 바로 미리보기
+    document.getElementById('photo').addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        var img = document.getElementById('preview');
+        if (file) {
+            img.src = URL.createObjectURL(file);
+            img.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>

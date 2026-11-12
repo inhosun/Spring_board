@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>인사관리</title>
+    <style>
+        body { font-family: sans-serif; max-width: 1040px; margin: 30px auto; padding: 0 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: middle; }
+        th { background: #f5f5f5; }
+        .btn { padding: 6px 12px; border: 1px solid #888; background: #fff; border-radius: 4px;
+               cursor: pointer; text-decoration: none; color: #222; font-size: 14px; }
+        .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+        .btn-danger { color: #b91c1c; border-color: #b91c1c; }
+        .message { background: #e0f2fe; padding: 10px; border-radius: 4px; margin: 12px 0; }
+        .error-msg { background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 4px; margin: 12px 0; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; }
+        form.inline { display: inline; }
+        .num { text-align: right; }
+        .thumb { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; display: block; }
+        .placeholder { background: #cbd5e1; color: #fff; font-weight: bold; font-size: 20px;
+                       display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+<h1>인사관리 시스템</h1>
+
+<div class="message" th:if="${message}" th:text="${message}"></div>
+<div class="error-msg" th:if="${error}" th:text="${error}"></div>
+
+<div class="toolbar">
+    <form th:action="@{/employees}" method="get">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="이름 또는 부서 검색">
+        <button type="submit" class="btn">검색</button>
+        <a th:href="@{/employees}" class="btn">초기화</a>
+    </form>
+    <a th:href="@{/employees/new}" class="btn btn-primary">+ 직원 등록</a>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>사진</th><th>번호</th><th>이름</th><th>부서</th><th>직급</th>
+        <th>이메일</th><th class="num">급여</th><th>입사일</th><th>관리</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="e : ${employees}">
+        <td>
+            <img th:if="${e.photoFileName != null}" class="thumb"
+                 th:src="@{/photos/{f}(f=${e.photoFileName})}" alt="사진">
+            <span th:unless="${e.photoFileName != null}" class="thumb placeholder"
+                  th:text="${#strings.substring(e.name, 0, 1)}"></span>
+        </td>
+        <td th:text="${e.id}"></td>
+        <td th:text="${e.name}"></td>
+        <td th:text="${e.department}"></td>
+        <td th:text="${e.position}"></td>
+        <td th:text="${e.email}"></td>
+        <td class="num" th:text="${#numbers.formatInteger(e.salary, 3, 'COMMA')} + '원'"></td>
+        <td th:text="${#temporals.format(e.hireDate, 'yyyy-MM-dd')}"></td>
+        <td>
+            <a th:href="@{/employees/{id}/edit(id=${e.id})}" class="btn">수정</a>
+            <form class="inline" th:action="@{/employees/{id}/delete(id=${e.id})}" method="post"
+                  onsubmit="return confirm('정말 삭제할까요?');">
+                <button type="submit" class="btn btn-danger">삭제</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(employees)}">
+        <td colspan="9" style="text-align:center; color:#888;">등록된 직원이 없습니다.</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
